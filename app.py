@@ -2,13 +2,17 @@ import os
 
 from flask import Flask, request, flash, redirect, render_template_string, url_for, render_template
 from werkzeug.utils import secure_filename
+from dotenv import load_dotenv
 import pytesseract
 from ImageProcessor import ImageProcessor
+from RagProcessing import RagProcessing
 from PIL import Image
-
+load_dotenv()
 app = Flask(__name__)
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 app.config['UPLOAD_FOLDER'] = './uploads'
+app.config['TXT_DOCS'] = './docs'
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
 
 def allowed_file(filename):
@@ -47,6 +51,22 @@ def ocr():
     for file in selected_files:
         imageProcessor.processImage(os.path.join("./uploads/", file))
     return redirect(url_for('upload_file'))
+
+@app.route("/query", methods=['GET', 'POST'])
+def query():
+    processor = RagProcessing()
+    for file in os.listdir(app.config['TXT_DOCS']):
+        processor.storeInVectorStore(os.path.join(app.config['TXT_DOCS'], file))
+    processor.retrieve()
+    processor.generate()
+    return render_template_string('''
+    <!doctype html>
+    <head></head>
+    <body>
+    <h1>Response in logs</h1>
+    </body>
+    ''')
+
 
 
 if __name__ == '__main__':
