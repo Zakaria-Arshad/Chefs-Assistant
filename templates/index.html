@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+    <title>File Management</title>
+    <script>
+        function setFormAction(action) {
+            let form = document.getElementById('fileForm');
+            form.action = action;
+            form.submit();
+        }
+    </script>
+</head>
+<body>
+    <h1>Upload new File</h1>
+        <form method=post enctype=multipart/form-data>
+          <input type=file name=file>
+          <input type=submit value=Upload>
+        </form>
+    <h1>Manage Files</h1>
+    <form id="fileForm" method="post">
+        <ul>
+        {% for file in files %}
+            <li>
+                <input type="checkbox" name="selected_files" value="{{ file }}"> {{ file }}
+            </li>
+        {% endfor %}
+        </ul>
+        <input type="button" value="Delete Selected" onclick="setFormAction('/delete')">
+        <input type="button" value="Send to OCR" onclick="setFormAction('/ocr')">
+    </form>
+</body>
+</html>

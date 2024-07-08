@@ -1,0 +1,2 @@
+class RagProcessing:
+    pass
