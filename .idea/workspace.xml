@@ -4,13 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3aa6c472-c7bf-4adb-bc36-32b08b7f569a" name="Changes" comment="added ability to upload and delete images in server. added basic pre-processing + ocr">
-      <change afterPath="$PROJECT_DIR$/templates/chat.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/RAGDoc.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/RAGDoc.iml" afterDir="false" />
+    <list default="true" id="3aa6c472-c7bf-4adb-bc36-32b08b7f569a" name="Changes" comment="Implemented user chat interface, fixed issues with sending and returning data to LLM">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RagProcessing.py" beforeDir="false" afterPath="$PROJECT_DIR$/RagProcessing.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -124,7 +120,8 @@
       <workItem from="1720456006548" duration="4185000" />
       <workItem from="1720559184919" duration="307000" />
       <workItem from="1720559501008" duration="954000" />
-      <workItem from="1720570739913" duration="9534000" />
+      <workItem from="1720570739913" duration="10036000" />
+      <workItem from="1720622367398" duration="1978000" />
     </task>
     <task id="LOCAL-00001" summary="added ability to upload and delete images in server. added basic pre-processing + ocr">
       <option name="closed" value="true" />
@@ -134,7 +131,15 @@
       <option name="project" value="LOCAL" />
       <updated>1720406286614</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Implemented user chat interface, fixed issues with sending and returning data to LLM">
+      <option name="closed" value="true" />
+      <created>1720581398424</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1720581398424</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -153,9 +158,10 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="added ability to upload and delete images in server. added basic pre-processing + ocr" />
-    <option name="LAST_COMMIT_MESSAGE" value="added ability to upload and delete images in server. added basic pre-processing + ocr" />
+    <MESSAGE value="Implemented user chat interface, fixed issues with sending and returning data to LLM" />
+    <option name="LAST_COMMIT_MESSAGE" value="Implemented user chat interface, fixed issues with sending and returning data to LLM" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/RAGDoc$RAGDoc.coverage" NAME="RAGDoc Coverage Results" MODIFIED="1720580998574" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/RAGDoc$RAGDoc.coverage" NAME="RAGDoc Coverage Results" MODIFIED="1720624603974" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
   </component>
 </project>

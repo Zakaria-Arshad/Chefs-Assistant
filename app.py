@@ -12,7 +12,7 @@ pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tessera
 app.config['UPLOAD_FOLDER'] = './uploads'
 app.config['TXT_DOCS'] = './docs'
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-
+processor = None
 
 def allowed_file(filename):
     file_extension = filename.split(".")[-1]
@@ -53,14 +53,15 @@ def ocr():
 
 @app.route("/chat", methods=['GET', 'POST'])
 def chat():
+    global processor
+    processor = RagProcessing()
+    for file in os.listdir(app.config['TXT_DOCS']):
+        processor.storeInVectorStore(os.path.join(app.config['TXT_DOCS'], file))
     return render_template('chat.html')
 @app.route("/query", methods=['POST', 'GET'])
 def query():
     data = request.get_json()
     user_query = data['query']
-    processor = RagProcessing()
-    for file in os.listdir(app.config['TXT_DOCS']):
-        processor.storeInVectorStore(os.path.join(app.config['TXT_DOCS'], file))
     response = processor.generate(user_query)
     return jsonify(response)
 
