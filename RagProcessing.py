@@ -7,7 +7,7 @@ from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
 from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
-
+from flask import jsonify
 from langchain import hub
 
 class RagProcessing:
@@ -54,8 +54,10 @@ class RagProcessing:
                 | llm
                 | StrOutputParser()
         )
-        for chunk in rag_chain.stream(query):
-            print(chunk, end="", flush=True)
+        response = {"response": " ".join(rag_chain.stream(query))}
+        return response
+
+
 
 
 

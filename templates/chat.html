@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<div id="chat-container">
+</div>
+<form id="query-form">
+    <input type="text" name="query-input" id="query-input" required>
+    <button type="submit">Send</button>
+</form>
+<script>
+    document.getElementById("query-form").addEventListener("submit", function(event) {
+        event.preventDefault()
+        let inputText = document.getElementById("query-input").value
+        let userInputElement = document.createElement("p")
+        userInputElement.innerText = inputText
+        let chatContainer = document.getElementById("chat-container")
+        chatContainer.appendChild(userInputElement)
+        axios.post("/query", {"query": inputText}).then(function(response) {
+            let responseText = response.data.response
+            let llmResponseElement = document.createElement("p")
+            llmResponseElement.innerText = responseText
+            chatContainer.appendChild(llmResponseElement)
+        })
+        // send it to the /query route
+        // get a response back
+        // append that to the chat container
+    })
+</script>
+
+</body>
+</html>

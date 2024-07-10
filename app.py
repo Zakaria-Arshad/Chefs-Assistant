@@ -1,12 +1,11 @@
 import os
 
-from flask import Flask, request, flash, redirect, render_template_string, url_for, render_template
+from flask import Flask, request, flash, redirect, render_template_string, url_for, render_template, jsonify
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 import pytesseract
 from ImageProcessor import ImageProcessor
 from RagProcessing import RagProcessing
-from PIL import Image
 load_dotenv()
 app = Flask(__name__)
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
@@ -52,22 +51,18 @@ def ocr():
         imageProcessor.processImage(os.path.join("./uploads/", file))
     return redirect(url_for('upload_file'))
 
-@app.route("/query", methods=['GET', 'POST'])
+@app.route("/chat", methods=['GET', 'POST'])
+def chat():
+    return render_template('chat.html')
+@app.route("/query", methods=['POST', 'GET'])
 def query():
+    data = request.get_json()
+    user_query = data['query']
     processor = RagProcessing()
     for file in os.listdir(app.config['TXT_DOCS']):
         processor.storeInVectorStore(os.path.join(app.config['TXT_DOCS'], file))
-    processor.retrieve()
-    processor.generate()
-    return render_template_string('''
-    <!doctype html>
-    <head></head>
-    <body>
-    <h1>Response in logs</h1>
-    </body>
-    ''')
-
-
+    response = processor.generate(user_query)
+    return jsonify(response)
 
 if __name__ == '__main__':
     app.run()
