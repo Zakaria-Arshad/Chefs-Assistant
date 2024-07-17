@@ -6,6 +6,8 @@ The application allows a user to upload images of handwritten notes. The applica
 
 The user can then query the chatbot, using the uploaded documents as a reference. The RAG chain splits and embeds the documents into a local vectorstore, then uses a retriver alongside OpenAI's GPT 3.5 to return the relevant information.
 
+Current version: Basic implementation that allows uploading images, basic pre-processing for OCR, and local storage for RAG documents.
+
 Future plans:
 - Convert from local vectorstore to something permanent, such as MongoDB or Amazon Aurora, to avoid constantly re-loading the documents
 - Allow deletion of documents
