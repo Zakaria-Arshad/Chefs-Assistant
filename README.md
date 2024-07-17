@@ -11,4 +11,4 @@ Future plans:
 - Allow deletion of documents
 - Add metadata to documents so a specific user's documents are the only documents being retrieved. 
 - Use AWS SageMaker to deploy a more custom Computer Vision model. Building a Proof of Concept model with Pytorch to train on my mother's handwriting for more accuracy. Possibly enabling users to upload their own images to be trained for themselves.
-- 
+  
