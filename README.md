@@ -6,9 +6,11 @@ The application allows a user to upload images of handwritten notes. The applica
 
 The user can then query the chatbot, using the uploaded documents as a reference. The RAG chain splits and embeds the documents into a local vectorstore, then uses a retriver alongside OpenAI's GPT 3.5 to return the relevant information.
 
+Current version: Basic implementation that allows uploading images, basic pre-processing for OCR, and local storage for RAG documents.
+
 Future plans:
-- Convert from local vectorstore to something permanent, such as MongoDB or Amazon Aurora, to avoid constantly re-loading the documents
-- Allow deletion of documents
+- Convert from local vectorstore to something permanent, with Amazon RDS with pgvector
+- Mind dump feature: allow user to record audio of anything they are thinking of. This can either be created into a new document, or use RAG + other techniques to find a relevant document to integrate this information into. This will require a speech - to - text model.
 - Add metadata to documents so a specific user's documents are the only documents being retrieved. 
 - Use AWS SageMaker to deploy a more custom Computer Vision model. Building a Proof of Concept model with Pytorch to train on my mother's handwriting for more accuracy. Possibly enabling users to upload their own images to be trained for themselves.
   
