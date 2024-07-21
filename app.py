@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import pytesseract
 from ImageProcessor import ImageProcessor
 from RagProcessing import RagProcessing
+
 load_dotenv()
 app = Flask(__name__)
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
