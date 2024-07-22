@@ -1,5 +1,7 @@
 import os
+import time
 
+import requests
 from flask import Flask, request, flash, redirect, render_template_string, url_for, render_template, jsonify
 from werkzeug.utils import secure_filename
 import boto3
@@ -21,7 +23,8 @@ AWS_SECRET_ACCESS_KEY = os.getenv('SECRET_ACCESS_KEY')
 s3 = boto3.client('s3', region_name=S3_REGION,
                   aws_access_key_id=AWS_ACCESS_KEY_ID,
                   aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
-processor = None
+transcribe = boto3.client('transcribe')
+processor = RagProcessing()
 
 def allowed_image_file(filename):
     file_extension = filename.split(".")[-1]
@@ -67,10 +70,8 @@ def ocr():
 
 @app.route("/chat", methods=['GET', 'POST'])
 def chat():
-    global processor
-    processor = RagProcessing()
-    for file in os.listdir(app.config['TXT_DOCS']):
-        processor.storeInVectorStore(os.path.join(app.config['TXT_DOCS'], file))
+    # for file in os.listdir(app.config['TXT_DOCS']):
+    #     processor.storeInVectorStore(os.path.join(app.config['TXT_DOCS'], file))
     return render_template('chat.html')
 
 @app.route("/query", methods=['POST', 'GET'])
@@ -83,13 +84,52 @@ def query():
 @app.route("/uploadToS3", methods=['POST'])
 def uploadToS3():
     # TO DO: Add more validation in case of problems
+    # TO DO: try catch for uploading the file
+    # TO DO: separate into multiple functions -> one for upload to S3, one for transcribe
+    # TO DO: don't return audio file
     # Limit audio length?
-    # try catch for uploading the file
+    #
     if 'audio' not in request.files:
         return jsonify({'error': 'No audio file part'}), 400
     file = request.files['audio']
     s3.upload_fileobj(file, S3_BUCKET, file.filename, ExtraArgs={'ContentType': 'audio/wav'})
     file_url = f"https://{S3_BUCKET}.s3.{S3_REGION}.amazonaws.com/{file.filename}"
+
+    def get_transcription_status(job_name):
+        response = transcribe.get_transcription_job(TranscriptionJobName=job_name)
+        return response['TranscriptionJob']['TranscriptionJobStatus']
+
+    def get_transcription_result(job_name):
+        response = transcribe.get_transcription_job(TranscriptionJobName=job_name)
+        transcript_file_uri = response['TranscriptionJob']['Transcript']['TranscriptFileUri']
+        return transcript_file_uri
+
+
+    job_args = {
+        "TranscriptionJobName": file.filename,
+        "Media": {"MediaFileUri": file_url},
+        "MediaFormat": "wav",
+        "LanguageCode": "en-US",
+    }
+    job_name = job_args["TranscriptionJobName"] # file.filename
+
+    response = transcribe.start_transcription_job(**job_args)
+
+    status = get_transcription_status(job_name)
+    while status not in {"COMPLETED", "FAILED"}:
+        print("Processing")
+        time.sleep(10)
+        status = get_transcription_status(job_name)
+
+    if status == "COMPLETED":
+        transcript_file_uri = get_transcription_result(job_name)
+        transcript_json = requests.get(transcript_file_uri).json()
+        data_result = transcript_json["results"]["transcripts"][0]["transcript"]
+        processor.storeInVectorStore(data_result)
+    else:
+        print("Oops! Error.")
+
+
     return jsonify({'file_url': file_url}), 200
 
 if __name__ == '__main__':

@@ -10,6 +10,15 @@ from langchain_cohere import CohereEmbeddings
 from langchain_postgres.vectorstores import PGVector
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from langchain.document_loaders.base import BaseLoader
+from langchain.schema import Document
+
+class StringLoader(BaseLoader):
+    def __init__(self, text: str):
+        self.text = text
+
+    def load(self):
+        return [Document(page_content=self.text)]
 
 
 class RagProcessing:
@@ -28,12 +37,14 @@ class RagProcessing:
 
 
     def getVectorStore(self):
-        collection_name = "vector_storage"
+        if self.vectorStore:
+            return self.vectorStore
+        collection_name = "testing"
         embeddings = CohereEmbeddings(model="embed-english-v3.0")
         return PGVector(collection_name=collection_name, embeddings=embeddings, connection=self.engine, use_jsonb=True)
 
-    def storeInVectorStore(self, route):
-        loader = TextLoader(route)
+    def storeInVectorStore(self, txt):
+        loader = StringLoader(txt)
         data = loader.load()
         data[0].metadata["original_doc_id"] = 1
         text_splitter = RecursiveCharacterTextSplitter(
