@@ -1,16 +1,21 @@
-# Chef's Assistant
+# Mind Dump AI
 
-Built because of a complaint from a very important person to me: my mother: She has hundreds of pages of handwritten recipes, which makes it difficult for her to find the recipes she wants quickly, or to get a list of ingredients for a certain dish when she's out shopping.
+Ever have a thought you just wanted to quickly jot down? Mind Dump AI allows you to quickly record your thoughts and submit them. 
 
-The application allows a user to upload images of handwritten notes. The application uses Optical Character Recognition to extract the text from these images and save them into text documents, without needing to type them yourself. It also allows for the use of a less expensive LLM model, not requiring vision capabilities of GPT4.
+Behind the scenes, the audio is transcribed and saved into a database. 
 
-The user can then query the chatbot, using the uploaded documents as a reference. The RAG chain splits and embeds the documents into a local vectorstore, then uses a retriver alongside OpenAI's GPT 3.5 to return the relevant information.
+The user can then query a chatbot, with any Mind Dumps submitted as context.
 
-Current version: Basic implementation that allows uploading images, basic pre-processing for OCR, and local storage for RAG documents.
+Priority future plan: Add intelligent searching to decide whether a mind dump should be integrated into an existing user document, or created as a new one. If integrated, the mind dump will be seamlessly added to the document with no other input from the user needed. This makes the mind dump a true mind dump: speak your mind, and move on with life, knowing that if you want to find it later, it'll be in the right place.
+
+Current version functionalities: 
+Mind Dump: Record Audio -> Save to S3 -> Start Transcription Job with AWS Transcribe -> Convert text into custom Langchain Document -> Split and Embed Document -> Add to Amazon RDS Postgres (Vector) DB
+Chatbot: Retrieve relevant documents to query -> Format documents -> Pass to Custom Query -> Return response with query as context
 
 Future plans:
-- Convert from local vectorstore to something permanent, with Amazon RDS with pgvector
-- Mind dump feature: allow user to record audio of anything they are thinking of. This can either be created into a new document, or use RAG + other techniques to find a relevant document to integrate this information into. This will require a speech - to - text model.
+- ~~Convert from local vectorstore to something permanent, with Amazon RDS with pgvector~~
+- ~~Mind dump feature: allow user to record audio of anything they are thinking of.~~ 
 - Add metadata to documents so a specific user's documents are the only documents being retrieved. 
-- Use AWS SageMaker to deploy a more custom Computer Vision model. Building a Proof of Concept model with Pytorch to train on my mother's handwriting for more accuracy. Possibly enabling users to upload their own images to be trained for themselves.
+- Priority!: Use intelligent searching to decide whether a mind dump should be integrated into an existing document, or added new.
+- Full deployment through AWS
   
