@@ -2,6 +2,7 @@ import os
 
 from flask import Flask, request, flash, redirect, render_template_string, url_for, render_template, jsonify
 from werkzeug.utils import secure_filename
+import boto3
 from dotenv import load_dotenv
 import pytesseract
 from ImageProcessor import ImageProcessor
@@ -13,12 +14,21 @@ pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tessera
 app.config['UPLOAD_FOLDER'] = './uploads'
 app.config['TXT_DOCS'] = './docs'
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+S3_BUCKET = os.getenv('S3_BUCKET')
+S3_REGION = os.getenv('S3_REGION')
+AWS_ACCESS_KEY_ID = os.getenv('ACCESS_KEY')
+AWS_SECRET_ACCESS_KEY = os.getenv('SECRET_ACCESS_KEY')
+s3 = boto3.client('s3', region_name=S3_REGION,
+                  aws_access_key_id=AWS_ACCESS_KEY_ID,
+                  aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
 processor = None
 
-def allowed_file(filename):
+def allowed_image_file(filename):
     file_extension = filename.split(".")[-1]
     return file_extension in ["jpg", "jpeg", "png"]
-
+def allowed_text_file(filename):
+    file_extension = filename.split(".")[-1]
+    return file_extension in ["txt"]
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():  # put application's code here
@@ -30,9 +40,12 @@ def upload_file():  # put application's code here
         if file.filename == '':
             flash('No selected file')
             return redirect(request.url)
-        if file and allowed_file(file.filename):  # should add allowed file security later
+        if file and allowed_image_file(file.filename):  # should add allowed file security later
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        if file and allowed_text_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['TXT_DOCS'], filename))
     files = os.listdir(app.config['UPLOAD_FOLDER'])
     return render_template('index.html', files=files)
 
@@ -59,12 +72,25 @@ def chat():
     for file in os.listdir(app.config['TXT_DOCS']):
         processor.storeInVectorStore(os.path.join(app.config['TXT_DOCS'], file))
     return render_template('chat.html')
+
 @app.route("/query", methods=['POST', 'GET'])
 def query():
     data = request.get_json()
     user_query = data['query']
     response = processor.generate(user_query)
     return jsonify(response)
+
+@app.route("/uploadToS3", methods=['POST'])
+def uploadToS3():
+    # TO DO: Add more validation in case of problems
+    # Limit audio length?
+    # try catch for uploading the file
+    if 'audio' not in request.files:
+        return jsonify({'error': 'No audio file part'}), 400
+    file = request.files['audio']
+    s3.upload_fileobj(file, S3_BUCKET, file.filename, ExtraArgs={'ContentType': 'audio/wav'})
+    file_url = f"https://{S3_BUCKET}.s3.{S3_REGION}.amazonaws.com/{file.filename}"
+    return jsonify({'file_url': file_url}), 200
 
 if __name__ == '__main__':
     app.run()

@@ -9,6 +9,80 @@
             form.submit();
         }
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const startButton = document.getElementById('startButton');
+            const stopButton = document.getElementById('stopButton');
+            const audioPlayback = document.getElementById('audioPlayback');
+            const uploadButton = document.getElementById('uploadButton');
+
+            let mediaRecorder;
+            let audioChunks = [];
+
+            // request permission and get user media
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    mediaRecorder = new MediaRecorder(stream);
+
+                    // start recording when the start button is clicked
+                    startButton.addEventListener('click', () => {
+                        if (mediaRecorder.state === 'inactive') {
+                            mediaRecorder.start();
+                            startButton.disabled = true;
+                            stopButton.disabled = false;
+                            audioChunks = [];
+                        }
+                    });
+
+                    // stop recording when the stop button clicked
+                    stopButton.addEventListener('click', () => {
+                        if (mediaRecorder.state === 'recording') {
+                            mediaRecorder.stop();
+                            startButton.disabled = false;
+                            stopButton.disabled = true;
+                        }
+                    });
+
+                    // collect audio data as it becomes available
+                    mediaRecorder.addEventListener('dataavailable', event => {
+                        audioChunks.push(event.data);
+                        console.log('Data available:', event.data);
+                    });
+
+                    // create blob once recording stops
+                    mediaRecorder.addEventListener('stop', () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        const audioUrl = URL.createObjectURL(audioBlob);
+                        audioPlayback.src = audioUrl;
+
+                        uploadButton.disabled = false;
+
+                        uploadButton.addEventListener('click', () => {
+                            const formData = new FormData();
+                            formData.append("audio", audioBlob, `audio-${Date.now()}.wav`)
+
+                           fetch('/uploadToS3', {
+                                method: 'POST',
+                                body: formData
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log('File uploaded successfully:', data);
+                            })
+                            .catch(error => {
+                                console.error('Error uploading file:', error);
+                            });
+                        })
+
+                        // TO DO: Save to S3
+                    });
+                })
+                .catch(error => {
+                    console.error('Error accessing media devices.', error);
+                });
+        });
+
+    </script>
 </head>
 <body>
     <h1>Upload new File</h1>
@@ -29,5 +103,11 @@
         <input type="button" value="Send to OCR" onclick="setFormAction('/ocr')">
     </form>
     <a href="{{ url_for('chat') }}">Go to Chat Page</a>
+    <div>
+        <button id="startButton">Start Recording</button>
+        <button id="stopButton" disabled>Stop Recording</button>
+        <audio id="audioPlayback" controls></audio>
+        <button id="uploadButton" disabled>Upload to storage</button>
+    </div>
 </body>
 </html>
