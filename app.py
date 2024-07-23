@@ -15,6 +15,7 @@ app = Flask(__name__)
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 app.config['UPLOAD_FOLDER'] = './uploads'
 app.config['TXT_DOCS'] = './docs'
+app.config['MAX_CONTENT_LENGTH'] = 500 * 1024
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 S3_BUCKET = os.getenv('S3_BUCKET')
 S3_REGION = os.getenv('S3_REGION')
@@ -43,9 +44,9 @@ def upload_file():  # put application's code here
         if file.filename == '':
             flash('No selected file')
             return redirect(request.url)
-        if file and allowed_image_file(file.filename):  # should add allowed file security later
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        # if file and allowed_image_file(file.filename):  # should add allowed file security later
+        #     filename = secure_filename(file.filename)
+        #     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         if file and allowed_text_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['TXT_DOCS'], filename))
@@ -104,7 +105,6 @@ def uploadToS3():
         transcript_file_uri = response['TranscriptionJob']['Transcript']['TranscriptFileUri']
         return transcript_file_uri
 
-
     job_args = {
         "TranscriptionJobName": file.filename,
         "Media": {"MediaFileUri": file_url},
@@ -125,7 +125,8 @@ def uploadToS3():
         transcript_file_uri = get_transcription_result(job_name)
         transcript_json = requests.get(transcript_file_uri).json()
         data_result = transcript_json["results"]["transcripts"][0]["transcript"]
-        processor.storeInVectorStore(data_result)
+        # save to normal storage -> get id
+        processor.storeInVectorStore(data_result) # this needs to decide whether or not to add to existing doc or not
     else:
         print("Oops! Error.")
 

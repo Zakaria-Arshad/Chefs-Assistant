@@ -1,6 +1,5 @@
 import os
 
-from langchain_community.document_loaders import TextLoader
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -15,7 +14,7 @@ from langchain.schema import Document
 
 class StringLoader(BaseLoader):
     def __init__(self, text: str):
-        self.text = text
+        self.text = text if text else "No info"
 
     def load(self):
         return [Document(page_content=self.text)]
@@ -23,7 +22,6 @@ class StringLoader(BaseLoader):
 
 class RagProcessing:
     def __init__(self):
-        self.vectorStore = None
         self.docs = []
         self.chat_history = []
         self.openai_api_key = os.getenv('OPENAI_API_KEY')
@@ -34,11 +32,10 @@ class RagProcessing:
         self.conn_string = f"postgresql+psycopg://{self.user}:{self.password}@{self.host}/{self.database}"
         self.engine = create_engine(self.conn_string)
         self.Session = sessionmaker(bind=self.engine)
+        self.vectorstore = self.getVectorStore()
 
 
     def getVectorStore(self):
-        if self.vectorStore:
-            return self.vectorStore
         collection_name = "testing"
         embeddings = CohereEmbeddings(model="embed-english-v3.0")
         return PGVector(collection_name=collection_name, embeddings=embeddings, connection=self.engine, use_jsonb=True)
@@ -51,7 +48,6 @@ class RagProcessing:
             chunk_size=1000, chunk_overlap=100, add_start_index=True
         )
         all_splits = text_splitter.split_documents(data)
-        self.vectorstore = self.getVectorStore()
         self.vectorstore.add_documents(all_splits)
         self.close_connection()
 
@@ -64,7 +60,7 @@ class RagProcessing:
         retriever = self.retrieve()
 
         custom_prompt_template = PromptTemplate.from_template("""
-        Given the following context, answer the question.
+        Given the following context, answer the question. In the context, The term "I" refers to the person you are talking with.
 
         Context:
         {context}
@@ -78,6 +74,7 @@ class RagProcessing:
         def format_docs(docs):
             return "\n\n".join(doc.page_content for doc in docs)
 
+        # query passed to retriever -> formatted. stored in context. question is the query itself.
         rag_chain = (
                 {"context": retriever | format_docs, "question": RunnablePassthrough()}
                 | custom_prompt_template

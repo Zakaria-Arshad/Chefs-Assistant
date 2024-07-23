@@ -58,6 +58,7 @@
                         uploadButton.disabled = false;
 
                         uploadButton.addEventListener('click', () => {
+                            uploadButton.disabled = true;
                             const formData = new FormData();
                             formData.append("audio", audioBlob, `audio-${Date.now()}.wav`)
 
@@ -68,6 +69,8 @@
                             .then(response => response.json())
                             .then(data => {
                                 console.log('File uploaded successfully:', data);
+                                uploadButton.disabled = false;
+
                             })
                             .catch(error => {
                                 console.error('Error uploading file:', error);
@@ -91,17 +94,17 @@
           <input type=submit value=Upload>
         </form>
     <h1>Manage Files</h1>
-    <form id="fileForm" method="post">
-        <ul>
-        {% for file in files %}
-            <li>
-                <input type="checkbox" name="selected_files" value="{{ file }}"> {{ file }}
-            </li>
-        {% endfor %}
-        </ul>
-        <input type="button" value="Delete Selected" onclick="setFormAction('/delete')">
-        <input type="button" value="Send to OCR" onclick="setFormAction('/ocr')">
-    </form>
+{#    <form id="fileForm" method="post">#}
+{#        <ul>#}
+{#        {% for file in files %}#}
+{#            <li>#}
+{#                <input type="checkbox" name="selected_files" value="{{ file }}"> {{ file }}#}
+{#            </li>#}
+{#        {% endfor %}#}
+{#        </ul>#}
+{#        <input type="button" value="Delete Selected" onclick="setFormAction('/delete')">#}
+{#        <input type="button" value="Send to OCR" onclick="setFormAction('/ocr')">#}
+{#    </form>#}
     <a href="{{ url_for('chat') }}">Go to Chat Page</a>
     <div>
         <button id="startButton">Start Recording</button>
