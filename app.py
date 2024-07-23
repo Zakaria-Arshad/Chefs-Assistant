@@ -36,38 +36,38 @@ def allowed_text_file(filename):
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():  # put application's code here
-    if request.method == 'POST':
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-        file = request.files['file']
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-        # if file and allowed_image_file(file.filename):  # should add allowed file security later
-        #     filename = secure_filename(file.filename)
-        #     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        if file and allowed_text_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['TXT_DOCS'], filename))
-    files = os.listdir(app.config['UPLOAD_FOLDER'])
-    return render_template('index.html', files=files)
+    # if request.method == 'POST':
+    #     if 'file' not in request.files:
+    #         flash('No file part')
+    #         return redirect(request.url)
+    #     file = request.files['file']
+    #     if file.filename == '':
+    #         flash('No selected file')
+    #         return redirect(request.url)
+    #     # if file and allowed_image_file(file.filename):  # should add allowed file security later
+    #     #     filename = secure_filename(file.filename)
+    #     #     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    #     if file and allowed_text_file(file.filename):
+    #         filename = secure_filename(file.filename)
+    #         file.save(os.path.join(app.config['TXT_DOCS'], filename))
+    # files = os.listdir(app.config['UPLOAD_FOLDER'])
+    return render_template('index.html')
 
 
-@app.route("/delete", methods=['GET', 'POST'])
-def delete_file():
-    selected_files = request.form.getlist("selected_files")
-    for file in selected_files:
-        os.remove(os.path.join(app.config['UPLOAD_FOLDER'], file))
-    return redirect(url_for('upload_file'))
-
-@app.route("/ocr", methods=['GET', 'POST'])
-def ocr():
-    imageProcessor = ImageProcessor()
-    selected_files = request.form.getlist("selected_files")
-    for file in selected_files:
-        imageProcessor.processImage(os.path.join("./uploads/", file))
-    return redirect(url_for('upload_file'))
+# @app.route("/delete", methods=['GET', 'POST'])
+# def delete_file():
+#     selected_files = request.form.getlist("selected_files")
+#     for file in selected_files:
+#         os.remove(os.path.join(app.config['UPLOAD_FOLDER'], file))
+#     return redirect(url_for('upload_file'))
+#
+# @app.route("/ocr", methods=['GET', 'POST'])
+# def ocr():
+#     imageProcessor = ImageProcessor()
+#     selected_files = request.form.getlist("selected_files")
+#     for file in selected_files:
+#         imageProcessor.processImage(os.path.join("./uploads/", file))
+#     return redirect(url_for('upload_file'))
 
 @app.route("/chat", methods=['GET', 'POST'])
 def chat():
