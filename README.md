@@ -6,7 +6,7 @@ Behind the scenes, the audio is transcribed and saved into a database.
 
 The user can then query an LLM, with any Mind Dumps submitted as context. Forgot what you were thinking of a while ago? It's saved and easily retrievable.
 
-Deployed on AWS Elastic Container Service (ECS) + AWS S3 + AWS RDS, with Application Load Balancer and Route 53 domain. See the prototype (NO FRONTEND STYLING) here: https://minddumpai.com/
+Deployed on AWS Elastic Container Service (ECS) + AWS S3 + AWS RDS, with Application Load Balancer and Route 53 domain. Currently paused to continue development.
 
 Priority future plan: Add intelligent searching to decide whether a mind dump should be integrated into an existing user document, or created as a new one. If integrated, the mind dump will be seamlessly added to the document with no other input from the user needed. This makes the mind dump a true mind dump: speak your mind, and move on with life, knowing that if you want to find it later, it'll be in the right place.
 
